@@ -6,6 +6,7 @@ import com.example.timer_backend.dto.label.LabelRequestDto;
 import com.example.timer_backend.dto.label.LabelResponseDto;
 import com.example.timer_backend.mapper.LabelMapper;
 import com.example.timer_backend.model.Label;
+import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.LabelRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,9 @@ public class LabelServiceImpl implements LabelService {
     private final LabelRepository labelRepository;
     private final LabelMapper labelMapper;
 
-    public CreateLabelResponseDto save(CreateLabelRequestDto request) {
+    public CreateLabelResponseDto save(CreateLabelRequestDto request, User authUser) {
         Label label = labelMapper.toLabel(request);
+        label.setUser(authUser);
         Label saved = labelRepository.save(label);
 
         return labelMapper.toCreateLabelResponse(saved);

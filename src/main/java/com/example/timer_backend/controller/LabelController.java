@@ -4,9 +4,11 @@ import com.example.timer_backend.dto.label.CreateLabelRequestDto;
 import com.example.timer_backend.dto.label.CreateLabelResponseDto;
 import com.example.timer_backend.dto.label.LabelRequestDto;
 import com.example.timer_backend.dto.label.LabelResponseDto;
+import com.example.timer_backend.model.User;
 import com.example.timer_backend.service.LabelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,8 +28,10 @@ public class LabelController {
     private final LabelService labelService;
 
     @PostMapping
-    public CreateLabelResponseDto save(@RequestBody CreateLabelRequestDto request) {
-        return labelService.save(request);
+    public CreateLabelResponseDto save(@RequestBody CreateLabelRequestDto request, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+
+        return labelService.save(request, user);
     }
 
     @GetMapping
