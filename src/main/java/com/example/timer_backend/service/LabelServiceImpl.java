@@ -8,6 +8,7 @@ import com.example.timer_backend.mapper.LabelMapper;
 import com.example.timer_backend.model.Label;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.LabelRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,8 +32,9 @@ public class LabelServiceImpl implements LabelService {
     @Override
     public LabelResponseDto findById(Long id) {
         Label label = labelRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Label not found")
+                () -> new EntityNotFoundException("Label with id " + id + " not found")
         );
+
         return labelMapper.toLabelResponse(label);
     }
 
@@ -40,7 +42,7 @@ public class LabelServiceImpl implements LabelService {
     @Transactional
     public LabelResponseDto updateById(Long id, LabelRequestDto request) {
         Label existingLabel = labelRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Label with id " + id + " not found")
+                () -> new EntityNotFoundException("Label with id " + id + " not found")
         );
 
         existingLabel.setName(request.getName());
@@ -55,6 +57,7 @@ public class LabelServiceImpl implements LabelService {
         if (!labelRepository.existsById(id)) {
             throw new RuntimeException("Label with id " + id + " not found");
         }
+
         labelRepository.deleteById(id);
     }
 
