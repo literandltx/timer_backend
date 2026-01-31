@@ -8,7 +8,8 @@ import com.example.timer_backend.model.User;
 import com.example.timer_backend.service.LabelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -28,31 +28,56 @@ public class LabelController {
     private final LabelService labelService;
 
     @PostMapping
-    public CreateLabelResponseDto save(@RequestBody CreateLabelRequestDto request, Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
-
-        return labelService.save(request, user);
+    public ResponseEntity<CreateLabelResponseDto> save(
+            @RequestBody CreateLabelRequestDto request,
+            @AuthenticationPrincipal User user
+    ) {
+        CreateLabelResponseDto response = labelService.save(request, user);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
     @GetMapping
     @ResponseBody
-    public List<LabelResponseDto> findAll() {
-        return labelService.findAll();
+    public ResponseEntity<List<LabelResponseDto>> findAll(@AuthenticationPrincipal User user) {
+        List<LabelResponseDto> response = labelService.findAll(user);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 
     @GetMapping("/{id}")
-    public LabelResponseDto findById(@PathVariable Long id) {
-        return labelService.findById(id);
+    public ResponseEntity<LabelResponseDto> findById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user
+    ) {
+        LabelResponseDto response = labelService.findById(id, user);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 
     @PutMapping("/{id}")
-    public LabelResponseDto update(@PathVariable Long id, @RequestBody LabelRequestDto request) {
-        return labelService.updateById(id, request);
+    public ResponseEntity<LabelResponseDto> update(
+            @PathVariable Long id,
+            @RequestBody LabelRequestDto request,
+            @AuthenticationPrincipal User user
+    ) {
+        LabelResponseDto response = labelService.updateById(id, request, user);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        labelService.deleteById(id);
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user
+    ) {
+        labelService.deleteById(id, user);
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }

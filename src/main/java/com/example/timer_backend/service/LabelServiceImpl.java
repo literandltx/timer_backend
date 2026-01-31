@@ -10,11 +10,14 @@ import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.LabelRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LabelServiceImpl implements LabelService {
@@ -22,28 +25,45 @@ public class LabelServiceImpl implements LabelService {
     private final LabelMapper labelMapper;
 
     public CreateLabelResponseDto save(CreateLabelRequestDto request, User authUser) {
-        Label label = labelMapper.toLabel(request);
-        label.setUser(authUser);
+        log.info("Creating new label '{}' for user id: {}", request.getName(), authUser.getId());
+
+        Label label = labelMapper.toLabel(request, authUser);
         Label saved = labelRepository.save(label);
 
+        log.info("Label created successfully with id: {}", saved.getId());
         return labelMapper.toCreateLabelResponse(saved);
     }
 
     @Override
-    public LabelResponseDto findById(Long id) {
+    public LabelResponseDto findById(Long id, User authUser) {
+        log.info("Fetching label with id: {}", id);
+
         Label label = labelRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Label with id " + id + " not found")
         );
 
+        if (!label.getUser().getId().equals(authUser.getId())) {
+            log.warn("Access denied: User {} tried to access label {} owned by user {}", authUser.getId(), id, label.getUser().getId());
+            throw new AccessDeniedException("User with id " + id + " do not own label with id " + id);
+        }
+
+        log.info("Label updated successfully with id: {}", id);
         return labelMapper.toLabelResponse(label);
     }
 
     @Override
     @Transactional
-    public LabelResponseDto updateById(Long id, LabelRequestDto request) {
+    public LabelResponseDto updateById(Long id, LabelRequestDto request, User authUser) {
+        log.info("Updating label with id: {} for user id: {}", id, authUser.getId());
+
         Label existingLabel = labelRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Label with id " + id + " not found")
         );
+
+        if (!existingLabel.getUser().getId().equals(authUser.getId())) {
+            log.warn("Access denied: User {} tried to access label {} owned by user {}", authUser.getId(), id, existingLabel.getUser().getId());
+            throw new AccessDeniedException("User with id " + id + " do not own label with id " + id);
+        }
 
         existingLabel.setName(request.getName());
         existingLabel.setColor(request.getColor());
@@ -53,17 +73,30 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
-    public void deleteById(Long id) {
-        if (!labelRepository.existsById(id)) {
-            throw new RuntimeException("Label with id " + id + " not found");
+    @Transactional
+    public void deleteById(Long id, User authUser) {
+        log.info("Deleting label with id: {} for user id: {}", id, authUser.getId());
+
+        Label label = labelRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Label with id " + id + " not found"));
+
+        if (!label.getUser().getId().equals(authUser.getId())) {
+            log.warn("Access denied: User {} tried to access label {} owned by user {}", authUser.getId(), id, label.getUser().getId());
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to delete this label");
         }
 
-        labelRepository.deleteById(id);
+        labelRepository.delete(label);
+        log.info("Label with id: {} deleted successfully", id);
     }
 
-    public List<LabelResponseDto> findAll() {
-        return labelRepository.findAll().stream()
+    public List<LabelResponseDto> findAll(User authUser) {
+        log.info("Fetching all labels for user id: {}", authUser.getId());
+
+        List<LabelResponseDto> labels = labelRepository.findAllByUserId(authUser.getId()).stream()
                 .map(labelMapper::toLabelResponse)
                 .toList();
+
+        log.info("Found {} labels for user id: {}", labels.size(), authUser.getId());
+        return labels;
     }
 }

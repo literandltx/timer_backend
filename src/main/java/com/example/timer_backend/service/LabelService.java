@@ -13,11 +13,11 @@ import java.util.List;
 public interface LabelService {
     CreateLabelResponseDto save(CreateLabelRequestDto request, User authUser);
 
-    LabelResponseDto findById(Long id);
+    LabelResponseDto findById(Long id, User authUser);
 
-    LabelResponseDto updateById(Long id, LabelRequestDto request);
+    LabelResponseDto updateById(Long id, LabelRequestDto request, User authUser);
 
-    void deleteById(Long id);
+    void deleteById(Long id, User authUser);
 
-    List<LabelResponseDto> findAll();
+    List<LabelResponseDto> findAll(User user);
 }
