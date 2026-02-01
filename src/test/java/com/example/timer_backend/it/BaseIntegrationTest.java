@@ -25,11 +25,6 @@ public abstract class BaseIntegrationTest {
         postgres.start();
     }
 
-    @AfterAll
-    static void afterAll() {
-        postgres.stop();
-    }
-
     @BeforeEach
     void setUpRestAssured() {
         RestAssured.port = port;

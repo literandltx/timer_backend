@@ -2,6 +2,7 @@ package com.example.timer_backend.service;
 
 import com.example.timer_backend.dto.user.UserRegistrationRequestDto;
 import com.example.timer_backend.dto.user.UserRegistrationResponseDto;
+import com.example.timer_backend.exception.custom.UserAlreadyExistsException;
 import com.example.timer_backend.mapper.UserMapper;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.UserRepository;
@@ -19,13 +20,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserRegistrationResponseDto register(UserRegistrationRequestDto request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Unable to complete registration. User already exists.");
+            throw new UserAlreadyExistsException("Unable to complete registration. User already exists.");
         }
 
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-
+        User user = userMapper.toEntity(request, passwordEncoder.encode(request.getPassword()));
         User saved = userRepository.save(user);
 
         return userMapper.toModel(saved);
