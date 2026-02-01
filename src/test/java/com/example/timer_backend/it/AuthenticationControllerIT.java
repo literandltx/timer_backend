@@ -135,4 +135,19 @@ public class AuthenticationControllerIT extends BaseIntegrationTest {
                 .body("message", containsString("password"))
                 .body("message", containsString("size"));
     }
+
+    @Test
+    void shouldReturnUnauthorized_WhenUserDoesNotExist() {
+        String nonExistentEmail = "ghost@example.com";
+        String anyPassword = "password";
+
+        given()
+                .contentType(ContentType.JSON)
+                .auth().basic(nonExistentEmail, anyPassword)
+                .when()
+                .get("/api/v1/labels")
+                .then()
+                .log().ifValidationFails()
+                .statusCode(HttpStatus.UNAUTHORIZED.value());
+    }
 }
