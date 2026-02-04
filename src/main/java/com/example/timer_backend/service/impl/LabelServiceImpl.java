@@ -6,6 +6,7 @@ import com.example.timer_backend.dto.label.LabelRequestDto;
 import com.example.timer_backend.dto.label.LabelResponseDto;
 import com.example.timer_backend.mapper.LabelMapper;
 import com.example.timer_backend.model.Label;
+import com.example.timer_backend.model.TimerOption;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.LabelRepository;
 import com.example.timer_backend.service.LabelService;
@@ -43,10 +44,7 @@ public class LabelServiceImpl implements LabelService {
                 () -> new EntityNotFoundException("Label with id " + id + " not found")
         );
 
-        if (!label.getUser().getId().equals(authUser.getId())) {
-            log.warn("Access denied: User {} tried to access label {} owned by user {}", authUser.getId(), id, label.getUser().getId());
-            throw new AccessDeniedException("User with id " + id + " do not own label with id " + id);
-        }
+        checkOwnership(label, authUser);
 
         log.info("Label updated successfully with id: {}", id);
         return labelMapper.toLabelResponse(label);
@@ -61,10 +59,7 @@ public class LabelServiceImpl implements LabelService {
                 () -> new EntityNotFoundException("Label with id " + id + " not found")
         );
 
-        if (!existingLabel.getUser().getId().equals(authUser.getId())) {
-            log.warn("Access denied: User {} tried to access label {} owned by user {}", authUser.getId(), id, existingLabel.getUser().getId());
-            throw new AccessDeniedException("User with id " + id + " do not own label with id " + id);
-        }
+        checkOwnership(existingLabel, authUser);
 
         existingLabel.setName(request.getName());
         existingLabel.setColor(request.getColor());
@@ -81,10 +76,7 @@ public class LabelServiceImpl implements LabelService {
         Label label = labelRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Label with id " + id + " not found"));
 
-        if (!label.getUser().getId().equals(authUser.getId())) {
-            log.warn("Access denied: User {} tried to access label {} owned by user {}", authUser.getId(), id, label.getUser().getId());
-            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to delete this label");
-        }
+        checkOwnership(label, authUser);
 
         labelRepository.delete(label);
         log.info("Label with id: {} deleted successfully", id);
@@ -99,5 +91,13 @@ public class LabelServiceImpl implements LabelService {
 
         log.info("Found {} labels for user id: {}", labels.size(), authUser.getId());
         return labels;
+    }
+
+    private void checkOwnership(Label label, User authUser) {
+        if (!label.getUser().getId().equals(authUser.getId())) {
+            log.warn("Access denied: User {} tried to access label {} owned by user {}",
+                    authUser.getId(), label.getId(), label.getUser().getId());
+            throw new AccessDeniedException("You do not have permission to delete this label");
+        }
     }
 }
