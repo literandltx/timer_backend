@@ -1,4 +1,4 @@
-package com.example.timer_backend.service;
+package com.example.timer_backend.service.impl;
 
 import com.example.timer_backend.dto.label.CreateLabelRequestDto;
 import com.example.timer_backend.dto.label.CreateLabelResponseDto;
@@ -8,6 +8,7 @@ import com.example.timer_backend.mapper.LabelMapper;
 import com.example.timer_backend.model.Label;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.LabelRepository;
+import com.example.timer_backend.service.LabelService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

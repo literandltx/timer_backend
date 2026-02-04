@@ -1,4 +1,4 @@
-package com.example.timer_backend.service;
+package com.example.timer_backend.service.impl;
 
 import com.example.timer_backend.dto.user.UserRegistrationRequestDto;
 import com.example.timer_backend.dto.user.UserRegistrationResponseDto;
@@ -6,6 +6,7 @@ import com.example.timer_backend.exception.custom.UserAlreadyExistsException;
 import com.example.timer_backend.mapper.UserMapper;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.UserRepository;
+import com.example.timer_backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
