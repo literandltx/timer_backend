@@ -3,3 +3,7 @@ spring:
     name: timer_backend
   profiles:
     default: dev
+
+jwt:
+  expiration: 3000000
+  secret: secretsecretsecretsecretsecretsecret

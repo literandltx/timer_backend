@@ -4,6 +4,7 @@ import com.example.timer_backend.dto.user.UserLoginRequestDto;
 import com.example.timer_backend.dto.user.UserLoginResponseDto;
 import com.example.timer_backend.dto.user.UserRegistrationRequestDto;
 import com.example.timer_backend.dto.user.UserRegistrationResponseDto;
+import com.example.timer_backend.security.AuthenticationService;
 import com.example.timer_backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 public class AuthenticationController {
     private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/login")
     public UserLoginResponseDto login(@RequestBody @Valid UserLoginRequestDto request) {
-        throw new UnsupportedOperationException();
+        return authenticationService.authenticate(request);
     }
 
     @PostMapping("/register")

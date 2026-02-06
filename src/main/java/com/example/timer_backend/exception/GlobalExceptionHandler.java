@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -118,6 +119,23 @@ public class GlobalExceptionHandler {
         );
 
         log.info("Registration failed: {}", exception.getMessage());
+
+        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> handleBadCredentials(
+            final BadCredentialsException exception,
+            final WebRequest request
+    ) {
+        final ApiError apiError = new ApiError(
+                HttpStatus.UNAUTHORIZED,
+
+                exception.getLocalizedMessage(),
+                "Authentication failed. Incorrect username or password."
+        );
+
+        log.info("Bad credentials: {}", exception.getMessage());
 
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }

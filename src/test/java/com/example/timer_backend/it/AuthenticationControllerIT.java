@@ -1,5 +1,6 @@
 package com.example.timer_backend.it;
 
+import com.example.timer_backend.dto.user.UserLoginRequestDto;
 import com.example.timer_backend.dto.user.UserRegistrationRequestDto;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.LabelRepository;
@@ -35,7 +36,7 @@ public class AuthenticationControllerIT extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldCreateLabel_WhenUserIsAuthenticated() {
+    void shouldRegisterUser_WhenRequestIsValid() {
         UserRegistrationRequestDto request = UserRegistrationRequestDto.builder()
                 .email(userEmail)
                 .password(userPlainPassword)
@@ -52,6 +53,81 @@ public class AuthenticationControllerIT extends BaseIntegrationTest {
                 .statusCode(HttpStatus.CREATED.value())
                 .body("id", notNullValue())
                 .body("email", equalTo(userEmail));
+    }
+
+    @Test
+    void shouldLoginAndReturnToken_WhenCredentialsAreValid() {
+        User existingUser = new User();
+        existingUser.setEmail(userEmail);
+        existingUser.setPassword(passwordEncoder.encode(userPlainPassword));
+        userRepository.save(existingUser);
+
+        UserLoginRequestDto loginRequest = new UserLoginRequestDto();
+        loginRequest.setUsername(userEmail);
+        loginRequest.setPassword(userPlainPassword);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(loginRequest)
+                .when()
+                .post("/api/v1/auth/login")
+                .then()
+                .log().ifValidationFails()
+                .statusCode(HttpStatus.OK.value())
+                .body("token", notNullValue())
+                .body("token", not(emptyString()));
+    }
+
+    @Test
+    void shouldReturnForbidden_WhenLoginFails() {
+        User existingUser = new User();
+        existingUser.setEmail(userEmail);
+        existingUser.setPassword(passwordEncoder.encode(userPlainPassword));
+        userRepository.save(existingUser);
+
+        UserLoginRequestDto loginRequest = new UserLoginRequestDto();
+        loginRequest.setUsername(userEmail);
+        loginRequest.setPassword("WrongPassword123");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(loginRequest)
+                .when()
+                .post("/api/v1/auth/login")
+                .then()
+                .log().ifValidationFails()
+                .statusCode(oneOf(HttpStatus.UNAUTHORIZED.value()));
+    }
+
+    @Test
+    void shouldAccessProtectedResource_WhenTokenIsValid() {
+        User existingUser = new User();
+        existingUser.setEmail(userEmail);
+        existingUser.setPassword(passwordEncoder.encode(userPlainPassword));
+        userRepository.save(existingUser);
+
+        UserLoginRequestDto loginRequest = new UserLoginRequestDto();
+        loginRequest.setUsername(userEmail);
+        loginRequest.setPassword(userPlainPassword);
+
+        String token = given()
+                .contentType(ContentType.JSON)
+                .body(loginRequest)
+                .when()
+                .post("/api/v1/auth/login")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .path("token");
+
+        given()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .get("/api/v1/labels")
+                .then()
+                .log().ifValidationFails()
+                .statusCode(HttpStatus.OK.value());
     }
 
     @Test
