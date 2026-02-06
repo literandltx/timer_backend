@@ -1,4 +1,4 @@
-package com.example.timer_backend.dto.timerOption;
+package com.example.timer_backend.dto.timer.option;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

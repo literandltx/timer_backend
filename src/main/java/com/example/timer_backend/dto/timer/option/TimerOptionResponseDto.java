@@ -1,4 +1,4 @@
-package com.example.timer_backend.dto.timerSetting;
+package com.example.timer_backend.dto.timer.option;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TimerSettingResponseDto {
+public class TimerOptionResponseDto {
     private Long id;
     private Long userId;
-    private Long timerOptionId;
     private Long value;
-    private Long lastUpdated;
 }

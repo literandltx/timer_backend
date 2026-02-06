@@ -1,4 +1,4 @@
-package com.example.timer_backend.dto.timerOption;
+package com.example.timer_backend.dto.timer.option;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

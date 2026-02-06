@@ -1,7 +1,7 @@
 package com.example.timer_backend.it;
 
-import com.example.timer_backend.dto.timerOption.CreateTimerOptionRequestDto;
-import com.example.timer_backend.dto.timerOption.TimerOptionRequestDto;
+import com.example.timer_backend.dto.timer.option.CreateTimerOptionRequestDto;
+import com.example.timer_backend.dto.timer.option.TimerOptionRequestDto;
 import com.example.timer_backend.model.TimerOption;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.LabelRepository;

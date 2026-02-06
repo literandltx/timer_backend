@@ -1,4 +1,4 @@
-package com.example.timer_backend.dto.timerSetting;
+package com.example.timer_backend.dto.timer.setting;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

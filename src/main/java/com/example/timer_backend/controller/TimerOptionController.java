@@ -1,9 +1,9 @@
 package com.example.timer_backend.controller;
 
-import com.example.timer_backend.dto.timerOption.CreateTimerOptionRequestDto;
-import com.example.timer_backend.dto.timerOption.CreateTimerOptionResponseDto;
-import com.example.timer_backend.dto.timerOption.TimerOptionRequestDto;
-import com.example.timer_backend.dto.timerOption.TimerOptionResponseDto;
+import com.example.timer_backend.dto.timer.option.CreateTimerOptionRequestDto;
+import com.example.timer_backend.dto.timer.option.CreateTimerOptionResponseDto;
+import com.example.timer_backend.dto.timer.option.TimerOptionRequestDto;
+import com.example.timer_backend.dto.timer.option.TimerOptionResponseDto;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.service.TimerOptionService;
 import jakarta.validation.Valid;

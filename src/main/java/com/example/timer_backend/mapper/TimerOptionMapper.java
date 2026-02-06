@@ -1,8 +1,8 @@
 package com.example.timer_backend.mapper;
 
-import com.example.timer_backend.dto.timerOption.CreateTimerOptionRequestDto;
-import com.example.timer_backend.dto.timerOption.CreateTimerOptionResponseDto;
-import com.example.timer_backend.dto.timerOption.TimerOptionResponseDto;
+import com.example.timer_backend.dto.timer.option.CreateTimerOptionRequestDto;
+import com.example.timer_backend.dto.timer.option.CreateTimerOptionResponseDto;
+import com.example.timer_backend.dto.timer.option.TimerOptionResponseDto;
 import com.example.timer_backend.model.TimerOption;
 import com.example.timer_backend.model.User;
 import org.mapstruct.Mapper;
