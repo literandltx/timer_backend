@@ -2,6 +2,7 @@ package com.example.timer_backend.mapper;
 
 import com.example.timer_backend.dto.user.UserRegistrationRequestDto;
 import com.example.timer_backend.dto.user.UserRegistrationResponseDto;
+import com.example.timer_backend.dto.user.UserResponseDto;
 import com.example.timer_backend.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,4 +15,6 @@ public interface UserMapper {
     User toEntity(UserRegistrationRequestDto request, String encodedPassword);
 
     UserRegistrationResponseDto toModel(User user);
+
+    UserResponseDto toResponseDto(User user);
 }
