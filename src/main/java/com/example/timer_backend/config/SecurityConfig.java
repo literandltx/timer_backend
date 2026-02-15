@@ -20,8 +20,15 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
-    private final UserDetailsService userDetailsService;
+    private static final String[] AUTH_WHITE_LIST = {
+            "/api/v1/auth/**",
+            "/v3/api-docs/**",
+            "/v2/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-resources/**"
+    };
 
+    private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
@@ -34,7 +41,7 @@ public class SecurityConfig {
         return httpSecurity.cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**")
+                        .requestMatchers(AUTH_WHITE_LIST)
                         .permitAll()
                         .anyRequest()
                         .authenticated())
