@@ -13,6 +13,6 @@ public class CreateTimerSettingResponseDto {
     private Long id;
     private Long userId;
     private Long timerOptionId;
-    private Long value; // Returning the actual minutes (e.g., 25) is very helpful here
+    private Long value;
     private Long lastUpdated;
 }

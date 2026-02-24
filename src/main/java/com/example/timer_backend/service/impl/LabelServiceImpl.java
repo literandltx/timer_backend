@@ -6,18 +6,16 @@ import com.example.timer_backend.dto.label.LabelRequestDto;
 import com.example.timer_backend.dto.label.LabelResponseDto;
 import com.example.timer_backend.mapper.LabelMapper;
 import com.example.timer_backend.model.Label;
-import com.example.timer_backend.model.TimerOption;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.LabelRepository;
 import com.example.timer_backend.service.LabelService;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service

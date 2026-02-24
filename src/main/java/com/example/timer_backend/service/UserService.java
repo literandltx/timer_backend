@@ -1,6 +1,11 @@
 package com.example.timer_backend.service;
 
-import com.example.timer_backend.dto.user.*;
+import com.example.timer_backend.dto.user.ChangeEmailRequestDto;
+import com.example.timer_backend.dto.user.ChangePasswordRequestDto;
+import com.example.timer_backend.dto.user.UserRegistrationRequestDto;
+import com.example.timer_backend.dto.user.UserRegistrationResponseDto;
+import com.example.timer_backend.dto.user.UserResponseDto;
+import com.example.timer_backend.dto.user.UserUpdateRequestDto;
 import com.example.timer_backend.model.User;
 import org.springframework.stereotype.Service;
 

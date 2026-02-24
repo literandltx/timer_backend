@@ -1,5 +1,10 @@
 package com.example.timer_backend.it;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+
 import com.example.timer_backend.dto.timer.setting.CreateTimerSettingRequestDto;
 import com.example.timer_backend.dto.timer.setting.TimerSettingRequestDto;
 import com.example.timer_backend.model.TimerOption;
@@ -10,6 +15,7 @@ import com.example.timer_backend.repository.TimerOptionRepository;
 import com.example.timer_backend.repository.TimerSettingRepository;
 import com.example.timer_backend.repository.UserRepository;
 import io.restassured.http.ContentType;
+import java.time.Instant;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,11 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.Instant;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
 
 class TimerSettingControllerIT extends BaseIntegrationTest {
 

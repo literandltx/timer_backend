@@ -30,7 +30,7 @@ public interface TimerEntryMapper {
     TimerEntry toTimerEntry(CreateTimerEntryRequestDto dto, User user, Label label);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true) // User ownership usually doesn't change on edit
+    @Mapping(target = "user", ignore = true)
     @Mapping(target = "label", source = "label")
     @Mapping(target = "durationSeconds", source = "dto.durationSeconds")
     @Mapping(target = "startTime", source = "dto.startTime")

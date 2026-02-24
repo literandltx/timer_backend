@@ -6,6 +6,7 @@ import com.example.timer_backend.dto.label.LabelRequestDto;
 import com.example.timer_backend.dto.label.LabelResponseDto;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.service.LabelService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

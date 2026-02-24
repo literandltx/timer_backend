@@ -5,9 +5,8 @@ import com.example.timer_backend.dto.timer.option.CreateTimerOptionResponseDto;
 import com.example.timer_backend.dto.timer.option.TimerOptionRequestDto;
 import com.example.timer_backend.dto.timer.option.TimerOptionResponseDto;
 import com.example.timer_backend.model.User;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public interface TimerOptionService {

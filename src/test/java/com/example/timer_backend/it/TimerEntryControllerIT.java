@@ -1,5 +1,10 @@
 package com.example.timer_backend.it;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+
 import com.example.timer_backend.dto.timer.entry.CreateTimerEntryRequestDto;
 import com.example.timer_backend.dto.timer.entry.TimerEntryRequestDto;
 import com.example.timer_backend.model.Label;
@@ -9,6 +14,7 @@ import com.example.timer_backend.repository.LabelRepository;
 import com.example.timer_backend.repository.TimerEntryRepository;
 import com.example.timer_backend.repository.UserRepository;
 import io.restassured.http.ContentType;
+import java.time.Instant;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,11 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.Instant;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
 
 class TimerEntryControllerIT extends BaseIntegrationTest {
 
@@ -252,7 +253,6 @@ class TimerEntryControllerIT extends BaseIntegrationTest {
     @Test
     void shouldReturnNotFound_WhenUpdatingNonExistentTimerEntry() {
         long nonExistentId = 99999L;
-
         TimerEntryRequestDto updateRequest = new TimerEntryRequestDto();
         updateRequest.setLabelId(testLabel.getId());
         updateRequest.setDurationSeconds(200L);

@@ -5,9 +5,8 @@ import com.example.timer_backend.dto.label.CreateLabelResponseDto;
 import com.example.timer_backend.dto.label.LabelRequestDto;
 import com.example.timer_backend.dto.label.LabelResponseDto;
 import com.example.timer_backend.model.User;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public interface LabelService {

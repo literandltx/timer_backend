@@ -1,5 +1,8 @@
 package com.example.timer_backend.it;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+
 import com.example.timer_backend.dto.user.ChangeEmailRequestDto;
 import com.example.timer_backend.dto.user.ChangePasswordRequestDto;
 import com.example.timer_backend.dto.user.UserUpdateRequestDto;
@@ -14,9 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
 
 class UserControllerIT extends BaseIntegrationTest {
 

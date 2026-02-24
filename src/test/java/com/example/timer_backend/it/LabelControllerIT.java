@@ -1,11 +1,20 @@
 package com.example.timer_backend.it;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+
 import com.example.timer_backend.dto.label.CreateLabelRequestDto;
 import com.example.timer_backend.model.Label;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.LabelRepository;
 import com.example.timer_backend.repository.UserRepository;
 import io.restassured.http.ContentType;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,16 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.List;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.not;
 
 class LabelControllerIT extends BaseIntegrationTest {
 
@@ -62,7 +61,7 @@ class LabelControllerIT extends BaseIntegrationTest {
 
         given()
                 .contentType(ContentType.JSON)
-//                .header("Authorization", "Bearer " + token)
+                //.header("Authorization", "Bearer " + token)
                 .auth().basic(userEmail, userPlainPassword)
                 .body(request)
                 .when()

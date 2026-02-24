@@ -1,5 +1,13 @@
 package com.example.timer_backend.it;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.oneOf;
+
 import com.example.timer_backend.dto.user.UserLoginRequestDto;
 import com.example.timer_backend.dto.user.UserRegistrationRequestDto;
 import com.example.timer_backend.model.User;
@@ -11,9 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
 
 public class AuthenticationControllerIT extends BaseIntegrationTest {
 
