@@ -8,11 +8,15 @@ import com.example.timer_backend.dto.user.UserResponseDto;
 import com.example.timer_backend.dto.user.UserUpdateRequestDto;
 import com.example.timer_backend.exception.custom.UserAlreadyExistsException;
 import com.example.timer_backend.mapper.UserMapper;
+import com.example.timer_backend.model.Role;
+import com.example.timer_backend.model.RoleName;
 import com.example.timer_backend.model.User;
+import com.example.timer_backend.repository.RoleRepository;
 import com.example.timer_backend.repository.UserRepository;
 import com.example.timer_backend.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,16 +28,22 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
     @Override
+    @Transactional
     public UserRegistrationResponseDto register(UserRegistrationRequestDto request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new UserAlreadyExistsException("Unable to complete registration. User already exists.");
         }
 
+        Role userRole = roleRepository.findByName(RoleName.USER)
+                .orElseThrow(() -> new RuntimeException("Error: Role not found."));
+
         User user = userMapper.toEntity(request, passwordEncoder.encode(request.getPassword()));
+        user.setRoles(Set.of(userRole));
         User saved = userRepository.save(user);
 
         return userMapper.toModel(saved);
