@@ -1,9 +1,15 @@
 package com.example.timer_backend.exception;
 
+import com.example.timer_backend.exception.custom.FileProcessingException;
+import com.example.timer_backend.exception.custom.FileStorageException;
+import com.example.timer_backend.exception.custom.InvalidFileFormatException;
+import com.example.timer_backend.exception.custom.UnsupportedFileExtensionException;
 import com.example.timer_backend.exception.custom.UserAlreadyExistsException;
+import com.example.timer_backend.provider.FileType;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,6 +24,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
 @RestControllerAdvice
@@ -168,5 +175,80 @@ public class GlobalExceptionHandler {
         log.info("Validation failed: {}", errors);
 
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
+    @ExceptionHandler(InvalidFileFormatException.class)
+    public ResponseEntity<Object> handleInvalidFileFormat(
+            final InvalidFileFormatException exception,
+            final WebRequest request
+    ) {
+        final ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST,
+                exception.getLocalizedMessage(),
+                "The file content is invalid or corrupted."
+        );
+
+        log.warn("Invalid file format: {}", exception.getMessage());
+
+        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
+    @ExceptionHandler(UnsupportedFileExtensionException.class)
+    public ResponseEntity<Object> handleUnsupportedFileExtension(
+            final UnsupportedFileExtensionException exception,
+            final WebRequest request
+    ) {
+        final ApiError apiError = new ApiError(
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+                exception.getLocalizedMessage(),
+                "The provided file extension is not supported."
+        );
+
+        log.info("Unsupported file extension: {}", exception.getMessage());
+
+        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<Object> handleFileStorage(
+            final FileStorageException exception,
+            final WebRequest request
+    ) {
+        final ApiError apiError = new ApiError(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                exception.getLocalizedMessage(),
+                "Could not process or store the file."
+        );
+
+        log.error("File storage error: {}", exception.getMessage());
+
+        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
+    @ExceptionHandler(FileProcessingException.class)
+    public ResponseEntity<Object> handleFileProcessing(
+            final FileProcessingException exception,
+            final WebRequest request
+    ) {
+        final ApiError apiError = new ApiError(
+                HttpStatus.UNPROCESSABLE_CONTENT,
+                exception.getLocalizedMessage(),
+                "Error occurred during file processing."
+        );
+
+        log.error("File processing error: {}", exception.getMessage());
+
+        return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<?> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        if (ex.getRequiredType() != null && ex.getRequiredType().equals(FileType.class)) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Invalid file format",
+                    "message", "Supported formats are: CSV, JSON"
+            ));
+        }
+        return ResponseEntity.badRequest().build();
     }
 }

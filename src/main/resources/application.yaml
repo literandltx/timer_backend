@@ -3,7 +3,12 @@ spring:
     name: timer_backend
   profiles:
     default: dev
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
 
 jwt:
   expiration: 3000000
   secret: secretsecretsecretsecretsecretsecret
+
