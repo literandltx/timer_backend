@@ -8,6 +8,7 @@ import com.example.timer_backend.model.User;
 import com.example.timer_backend.service.LabelService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,8 +41,11 @@ public class LabelController {
 
     @GetMapping
     @ResponseBody
-    public ResponseEntity<List<LabelResponseDto>> findAll(@AuthenticationPrincipal User user) {
-        List<LabelResponseDto> response = labelService.findAll(user);
+    public ResponseEntity<List<LabelResponseDto>> findAll(
+            @AuthenticationPrincipal User user,
+            Pageable pageable
+    ) {
+        List<LabelResponseDto> response = labelService.findAll(user, pageable);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);

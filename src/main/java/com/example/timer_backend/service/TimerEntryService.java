@@ -8,6 +8,7 @@ import com.example.timer_backend.dto.timer.entry.TimerEntryResponseDto;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.provider.FileType;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +22,7 @@ public interface TimerEntryService {
 
     void deleteById(Long id, User authUser);
 
-    List<TimerEntryResponseDto> findAll(User authUser);
+    List<TimerEntryResponseDto> findAll(User authUser, Pageable pageable);
 
     void importFile(User authUser, MultipartFile file, FileType format);
 

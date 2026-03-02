@@ -9,6 +9,7 @@ import com.example.timer_backend.service.TimerSettingService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,8 +40,11 @@ public class TimerSettingController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TimerSettingResponseDto>> findAll(@AuthenticationPrincipal User user) {
-        List<TimerSettingResponseDto> response = timerSettingService.findAll(user);
+    public ResponseEntity<List<TimerSettingResponseDto>> findAll(
+            @AuthenticationPrincipal User user,
+            Pageable pageable
+    ) {
+        List<TimerSettingResponseDto> response = timerSettingService.findAll(user, pageable);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);

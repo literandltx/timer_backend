@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class TimerEntryServiceImpl implements TimerEntryService {
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
     private static final String DEFAULT_COLOR = "#FFFFFF";
-
 
     private final TimerEntryRepository timerEntryRepository;
     private final LabelRepository labelRepository;
@@ -110,8 +110,8 @@ public class TimerEntryServiceImpl implements TimerEntryService {
     }
 
     @Override
-    public List<TimerEntryResponseDto> findAll(User authUser) {
-        return timerEntryRepository.findAllByUserId(authUser.getId())
+    public List<TimerEntryResponseDto> findAll(User authUser, Pageable pageable) {
+        return timerEntryRepository.findAllByUserId(authUser.getId(), pageable)
                 .stream()
                 .map(timerEntryMapper::toTimerEntryResponse)
                 .toList();

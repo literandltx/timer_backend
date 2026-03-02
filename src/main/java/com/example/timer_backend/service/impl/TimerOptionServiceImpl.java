@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,10 +82,10 @@ public class TimerOptionServiceImpl implements TimerOptionService {
     }
 
     @Override
-    public List<TimerOptionResponseDto> findAll(User authUser) {
+    public List<TimerOptionResponseDto> findAll(User authUser, Pageable pageable) {
         log.info("Fetching all timer options for user id: {}", authUser.getId());
 
-        List<TimerOptionResponseDto> options = timerOptionRepository.findAllByUserId(authUser.getId()).stream()
+        List<TimerOptionResponseDto> options = timerOptionRepository.findAllByUserId(authUser.getId(), pageable).stream()
                 .map(timerOptionMapper::toTimerOptionResponse)
                 .toList();
 

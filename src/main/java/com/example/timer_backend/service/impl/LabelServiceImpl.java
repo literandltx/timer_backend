@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,10 +81,10 @@ public class LabelServiceImpl implements LabelService {
         log.info("Label with id: {} deleted successfully", id);
     }
 
-    public List<LabelResponseDto> findAll(User authUser) {
+    public List<LabelResponseDto> findAll(User authUser, Pageable pageable) {
         log.info("Fetching all labels for user id: {}", authUser.getId());
 
-        List<LabelResponseDto> labels = labelRepository.findAllByUserId(authUser.getId()).stream()
+        List<LabelResponseDto> labels = labelRepository.findAllByUserId(authUser.getId(), pageable).stream()
                 .map(labelMapper::toLabelResponse)
                 .toList();
 

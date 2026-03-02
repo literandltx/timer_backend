@@ -15,6 +15,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,8 +95,8 @@ public class TimerSettingServiceImpl implements TimerSettingService {
     }
 
     @Override
-    public List<TimerSettingResponseDto> findAll(User user) {
-        return timerSettingRepository.findByUserId(user.getId())
+    public List<TimerSettingResponseDto> findAll(User user, Pageable pageable) {
+        return timerSettingRepository.findAllByUserId(user.getId(), pageable)
                 .stream()
                 .map(timerSettingMapper::toTimerSettingResponse)
                 .toList();
