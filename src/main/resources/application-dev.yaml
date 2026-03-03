@@ -16,8 +16,10 @@ spring:
     show-sql: true
     open-in-view: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:db.changelog/db.changelog-master.yaml
 

@@ -10,9 +10,4 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-    //  add pagination with dynamic querying
-    //  add postgres
-    //  add liquibase
-    //  config diff user roles
-    //  deploy
 }
