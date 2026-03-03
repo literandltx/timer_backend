@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonPropertyOrder({"labelName", "durationSeconds", "startTime"})
+@JsonPropertyOrder({"labelName", "color", "durationSeconds", "startTime"})
 public class TimerEntryCsvDto {
     @JsonProperty("labelName")
     private String labelName;
