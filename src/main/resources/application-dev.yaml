@@ -1,14 +1,23 @@
+# Development Profile
 spring:
   config:
     activate:
       on-profile: dev
-
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: password
   sql:
     init:
       mode: always
       data-locations: classpath:static/data-dev.sql
-
   jpa:
     defer-datasource-initialization: true
+    show-sql: true
+    open-in-view: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+

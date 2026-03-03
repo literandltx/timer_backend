@@ -1,12 +1,9 @@
 package com.example.timer_backend;
 
+import com.example.timer_backend.it.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-class ApplicationTests {
+class ApplicationTests extends BaseIntegrationTest {
 
     @Test
     void contextLoads() {

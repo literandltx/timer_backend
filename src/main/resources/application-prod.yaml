@@ -1,12 +1,15 @@
+# Production Profile
 spring:
   config:
     activate:
       on-profile: prod
-
+  datasource:
+    url: ${JDBC_DATABASE_URL}
+    username: ${JDBC_DATABASE_USERNAME}
+    password: ${JDBC_DATABASE_PASSWORD}
   sql:
     init:
       mode: never
-
   jpa:
     hibernate:
-      ddl-auto: create-drop # todo: change to validate later
+      ddl-auto: validate

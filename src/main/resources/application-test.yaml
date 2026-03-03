@@ -1,13 +1,16 @@
+# Test Profile
 spring:
   config:
     activate:
       on-profile: test
-
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/timer_test_db
+#    username: postgres
+#    password: password
   sql:
     init:
       mode: always
       data-locations: classpath:static/data-test.sql
-
   jpa:
     defer-datasource-initialization: true
     hibernate:
