@@ -13,10 +13,12 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @ConditionalOnProperty(name = "app.rate-limit.enabled", havingValue = "true")
 public class RateLimitingFilter implements Filter {
@@ -32,11 +34,21 @@ public class RateLimitingFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String clientIp = httpRequest.getRemoteAddr();
-        Bucket bucket = buckets.computeIfAbsent(clientIp, k -> createNewBucket());
+        String requestUri = httpRequest.getRequestURI();
+
+        Bucket bucket = buckets.computeIfAbsent(clientIp, k -> {
+            log.info("Creating new rate-limit bucket for IP: {}", clientIp);
+            return createNewBucket();
+        });
 
         if (bucket.tryConsume(1)) {
+            log.trace("Request allowed for IP: {} on URI: {}", clientIp, requestUri);
             chain.doFilter(request, response);
         } else {
+            long availableTokens = bucket.getAvailableTokens();
+            log.warn("RATE LIMIT EXCEEDED - IP: {} | URI: {} | Available Tokens: {}",
+                    clientIp, requestUri, availableTokens);
+
             httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             httpResponse.setContentType("text/plain");
             httpResponse.getWriter().write("Too Many Requests - Rate limit exceeded");
