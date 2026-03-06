@@ -9,7 +9,7 @@ spring:
     password: password
   sql:
     init:
-      mode: always
+      mode: never
       data-locations: classpath:static/data-dev.sql
   jpa:
     defer-datasource-initialization: true

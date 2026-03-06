@@ -13,3 +13,7 @@ spring:
       ddl-auto: create-drop
   liquibase:
     enabled: false
+
+app:
+  rate-limit:
+    enabled: false

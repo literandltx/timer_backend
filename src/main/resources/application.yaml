@@ -14,3 +14,6 @@ jwt:
   expiration: 3000000
   secret: secretsecretsecretsecretsecretsecret
 
+app:
+  rate-limit:
+    enabled: true

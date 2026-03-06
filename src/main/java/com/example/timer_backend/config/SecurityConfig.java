@@ -2,7 +2,9 @@ package com.example.timer_backend.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import com.example.timer_backend.filter.RateLimitingFilter;
 import com.example.timer_backend.security.JwtAuthenticationFilter;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +32,7 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final Optional<RateLimitingFilter> rateLimitingFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -38,7 +41,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
-        return httpSecurity.cors(AbstractHttpConfigurer::disable)
+        httpSecurity
+                .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH_WHITE_LIST)
@@ -48,8 +52,13 @@ public class SecurityConfig {
                 .httpBasic(withDefaults())
                 .sessionManagement((session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)))
-                .addFilterBefore(jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        rateLimitingFilter.ifPresent(filter ->
+                httpSecurity.addFilterBefore(filter, JwtAuthenticationFilter.class)
+        );
+
+        return httpSecurity
                 .userDetailsService(userDetailsService)
                 .build();
     }
