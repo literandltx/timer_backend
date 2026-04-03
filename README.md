@@ -61,6 +61,12 @@ The application will be available at `http://localhost:8080`.
 
 ## 🐳 Running with Docker
 
+### Run with Docker Compose
+```bash
+docker-compose up --build
+```
+This will start both the PostgreSQL database and the backend application.
+
 ### Build Image
 ```bash
 ./mvnw spring-boot:build-image
