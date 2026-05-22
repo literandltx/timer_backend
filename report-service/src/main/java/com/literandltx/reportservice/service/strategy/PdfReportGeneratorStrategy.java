@@ -6,9 +6,9 @@ import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
-import org.springframework.stereotype.Component;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
+import org.springframework.stereotype.Component;
 
 @Component
 public class PdfReportGeneratorStrategy implements ReportGeneratorStrategy {

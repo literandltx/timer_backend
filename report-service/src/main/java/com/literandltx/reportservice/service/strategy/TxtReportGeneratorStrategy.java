@@ -1,9 +1,9 @@
 package com.literandltx.reportservice.service.strategy;
 
 import com.literandltx.reportservice.event.ReportRequestedEvent;
-import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TxtReportGeneratorStrategy implements ReportGeneratorStrategy {
