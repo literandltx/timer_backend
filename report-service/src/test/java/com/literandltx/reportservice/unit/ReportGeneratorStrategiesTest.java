@@ -6,56 +6,44 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import com.literandltx.reportservice.event.ReportRequestedEvent;
 import com.literandltx.reportservice.event.ReportType;
 import com.literandltx.reportservice.service.strategy.PdfReportGeneratorStrategy;
+import com.literandltx.reportservice.service.strategy.ReportGeneratorStrategy;
 import com.literandltx.reportservice.service.strategy.TxtReportGeneratorStrategy;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ReportGeneratorStrategiesTest {
 
-    @Test
-    @DisplayName("PDF Strategy should generate non-empty byte array and map to PDF type")
-    void testPdfStrategyGeneration() {
+    @ParameterizedTest(name = "Testing {0} for type {1}")
+    @MethodSource("provideStrategies")
+    @DisplayName("Strategy should generate non-empty byte array and map to correct type")
+    void testStrategyGeneration(ReportGeneratorStrategy strategy, ReportType expectedType) {
         // Arrange
-        PdfReportGeneratorStrategy strategy = new PdfReportGeneratorStrategy();
-        ReportRequestedEvent event = createEvent(ReportType.PDF);
+        ReportRequestedEvent event = createEvent(expectedType);
 
         // Act
         byte[] result = assertDoesNotThrow(() -> strategy.generate(event), 
-                "PDF generation should not throw any exceptions");
+                expectedType + " generation should not throw any exceptions");
 
         // Assert
         assertThat(result)
-                .as("Generated PDF byte array should not be null or empty")
+                .as("Generated %s byte array should not be null or empty", expectedType)
                 .isNotNull()
                 .isNotEmpty();
-        
         assertThat(strategy.getReportType())
-                .as("Strategy should advertise PDF report type")
-                .isEqualTo(ReportType.PDF);
+                .as("Strategy should advertise %s report type", expectedType)
+                .isEqualTo(expectedType);
     }
 
-    @Test
-    @DisplayName("TXT Strategy should generate non-empty byte array and map to TXT type")
-    void testTxtStrategyGeneration() {
-        // Arrange
-        TxtReportGeneratorStrategy strategy = new TxtReportGeneratorStrategy();
-        ReportRequestedEvent event = createEvent(ReportType.TXT);
-
-        // Act
-        byte[] result = assertDoesNotThrow(() -> strategy.generate(event), 
-                "TXT generation should not throw any exceptions");
-
-        // Assert
-        assertThat(result)
-                .as("Generated TXT byte array should not be null or empty")
-                .isNotNull()
-                .isNotEmpty();
-
-        assertThat(strategy.getReportType())
-                .as("Strategy should advertise TXT report type")
-                .isEqualTo(ReportType.TXT);
+    private static Stream<Arguments> provideStrategies() {
+        return Stream.of(
+                Arguments.of(new PdfReportGeneratorStrategy(), ReportType.PDF),
+                Arguments.of(new TxtReportGeneratorStrategy(), ReportType.TXT)
+        );
     }
 
     private ReportRequestedEvent createEvent(ReportType type) {
