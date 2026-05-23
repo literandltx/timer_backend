@@ -29,7 +29,20 @@ public class S3StorageServiceImpl implements StorageService {
                     .build();
 
             ResponseInputStream<GetObjectResponse> s3Object = s3Client.getObject(getObjectRequest);
-            return new InputStreamResource(s3Object);
+
+            return new InputStreamResource(s3Object) {
+                @Override
+                public String getFilename() {
+                    return fileKey.contains("/")
+                            ? fileKey.substring(fileKey.lastIndexOf("/") + 1)
+                            : fileKey;
+                }
+
+                @Override
+                public long contentLength() {
+                    return s3Object.response().contentLength();
+                }
+            };
         } catch (Exception e) {
             throw new RuntimeException("Error reading file from storage: " + e.getMessage(), e);
         }
