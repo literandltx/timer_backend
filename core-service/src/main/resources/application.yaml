@@ -37,6 +37,12 @@ app:
       notification: "notification-topic"
       report: "report-topic"
       core: "core-topic"
+  s3:
+    endpoint: ${S3_ENDPOINT:http://localhost:9000}
+    region: ${S3_REGION:eu-central-1}
+    bucket: ${S3_BUCKET:timer-reports}
+    access-key: ${S3_ACCESS_KEY:local-access-key}
+    secret-key: ${S3_SECRET_KEY:local-secret-key}
 
 server:
   port: 8080
