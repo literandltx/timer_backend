@@ -18,9 +18,9 @@ public class ReportService {
     private final ReportStatusProducer reportStatusProducer;
 
     public void processReport(ReportRequestedEvent event) {
-        String storagePath = generateStoragePath(event);
-
         try {
+            String storagePath = generateStoragePath(event);
+
             byte[] reportBytes = reportGeneratorService.generateReport(event);
             storageService.uploadFile(storagePath, reportBytes);
 
