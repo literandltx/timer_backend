@@ -1,11 +1,7 @@
 package com.literandltx.reportservice.listener;
 
 import com.literandltx.reportservice.event.ReportRequestedEvent;
-import com.literandltx.reportservice.event.ReportStatus;
-import com.literandltx.reportservice.event.ReportStatusEvent;
-import com.literandltx.reportservice.producer.ReportStatusProducer;
-import com.literandltx.reportservice.service.ReportGeneratorService;
-import com.literandltx.reportservice.service.S3UploadService;
+import com.literandltx.reportservice.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,41 +11,13 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class ReportRequestedEventListener {
-    private final S3UploadService s3UploadService;
-    private final ReportGeneratorService reportGeneratorService;
-    private final ReportStatusProducer reportStatusProducer;
+    private final ReportService reportService;
 
     @KafkaListener(topics = "${app.kafka.topics.report}")
     public void onReportRequested(ReportRequestedEvent event) {
         log.info("Received execution job for report ID: {}", event.getReportId());
-        log.info("Received execution job for payload: {}", event);
+        log.debug("Execution job payload: {}", event);
 
-        String s3Key = String.format("reports/%d/%s.%s", event.getUserId(), event.getReportId(), event.getReportType().name().toLowerCase());
-
-        try {
-            byte[] txtReportBytes = reportGeneratorService.generateReport(event);
-            s3UploadService.uploadFile(s3Key, txtReportBytes);
-
-            ReportStatusEvent successEvent = new ReportStatusEvent(
-                    event.getReportId(),
-                    ReportStatus.COMPLETED,
-                    s3Key,
-                    ""
-            );
-
-            reportStatusProducer.sendStatusUpdate(event.getUserId(), successEvent);
-            log.info("Compiled {} file with ID: {}", event.getReportId(), event.getReportType());
-        } catch (Exception ex) {
-            log.error("Failed handling report compilation job for ID: {}", event.getReportId(), ex);
-
-            ReportStatusEvent failureEvent = new ReportStatusEvent(
-                    event.getReportId(),
-                    ReportStatus.FAILED,
-                    null,
-                    ex.getMessage()
-            );
-
-            reportStatusProducer.sendStatusUpdate(event.getUserId(), failureEvent);
-        }
+        reportService.processReport(event);
     }
 }

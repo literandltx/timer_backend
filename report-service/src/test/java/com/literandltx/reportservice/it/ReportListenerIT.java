@@ -12,7 +12,7 @@ import com.literandltx.reportservice.event.ReportStatusEvent;
 import com.literandltx.reportservice.event.ReportType;
 import com.literandltx.reportservice.producer.ReportStatusProducer;
 import com.literandltx.reportservice.service.ReportGeneratorService;
-import com.literandltx.reportservice.service.S3UploadService;
+import com.literandltx.reportservice.service.storage.S3UploadService;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
