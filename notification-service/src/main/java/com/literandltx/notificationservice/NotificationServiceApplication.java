@@ -1,13 +1,13 @@
-package com.example.timer_backend;
+package com.literandltx.notificationservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Application {
+public class NotificationServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(NotificationServiceApplication.class, args);
     }
 
 }
