@@ -13,6 +13,6 @@ public class ReportRequestedEvent {
     private UUID reportId;
     private Long userId;
     private String email;
-    private String reportType;
+    private ReportType reportType;
     private Map<String, Object> filters;
 }

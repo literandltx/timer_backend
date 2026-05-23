@@ -1,5 +1,6 @@
-package com.literandltx.reportservice.event;
+package com.example.timer_backend.event;
 
+import com.example.timer_backend.model.ReportStatus;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;

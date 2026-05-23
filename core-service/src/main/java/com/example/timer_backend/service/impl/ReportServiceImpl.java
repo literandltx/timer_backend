@@ -10,6 +10,7 @@ import com.example.timer_backend.producer.ReportEventPublisher;
 import com.example.timer_backend.repository.ReportRepository;
 import com.example.timer_backend.service.ReportService;
 import jakarta.transaction.Transactional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -46,5 +47,11 @@ public class ReportServiceImpl implements ReportService {
         response.setStatus(report.getStatus().toString());
 
         return response;
+    }
+
+    @Override
+    public Report getReportByIdAndUser(UUID id, Long userId) {
+        return reportRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new RuntimeException("Report not found or you do not have permission to access it."));
     }
 }

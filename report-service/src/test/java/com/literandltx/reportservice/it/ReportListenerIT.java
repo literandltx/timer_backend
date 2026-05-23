@@ -7,8 +7,11 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import com.literandltx.reportservice.event.ReportRequestedEvent;
+import com.literandltx.reportservice.event.ReportStatus;
 import com.literandltx.reportservice.event.ReportStatusEvent;
+import com.literandltx.reportservice.event.ReportType;
 import com.literandltx.reportservice.producer.ReportStatusProducer;
+import com.literandltx.reportservice.service.ReportGeneratorService;
 import com.literandltx.reportservice.service.S3UploadService;
 import java.util.Map;
 import java.util.UUID;
@@ -29,6 +32,9 @@ public class ReportListenerIT extends BaseIntegrationTest {
     @MockitoSpyBean
     private ReportStatusProducer reportStatusProducer;
 
+    @MockitoSpyBean
+    private ReportGeneratorService reportGeneratorService;
+
     @Test
     void shouldProcessReportRequestAndProduceSuccessStatus() {
         UUID reportId = UUID.randomUUID();
@@ -38,7 +44,7 @@ public class ReportListenerIT extends BaseIntegrationTest {
                 reportId,
                 userId,
                 "test@literandltx.com",
-                "TXT",
+                ReportType.TXT,
                 Map.of()
         );
 
@@ -55,34 +61,8 @@ public class ReportListenerIT extends BaseIntegrationTest {
 
         ReportStatusEvent producedEvent = eventCaptor.getValue();
         assertThat(producedEvent.getReportId()).isEqualTo(reportId);
-        assertThat(producedEvent.getStatus()).isEqualTo("COMPLETED");
+        assertThat(producedEvent.getReportStatus()).isEqualTo(ReportStatus.COMPLETED);
         assertThat(producedEvent.getS3Key()).isEqualTo(expectedS3Key);
         assertThat(producedEvent.getErrorMessage()).isEmpty();
-    }
-
-    @Test
-    void shouldProduceFailedStatusWhenFormatIsUnsupported() {
-        UUID reportId = UUID.randomUUID();
-        Long userId = 999L;
-        
-        ReportRequestedEvent invalidRequest = new ReportRequestedEvent(
-                reportId,
-                userId,
-                "error@literandltx.com",
-                "EXCEL",
-                Map.of()
-        );
-
-        kafkaTemplate.send("report-topic", invalidRequest);
-
-        ArgumentCaptor<ReportStatusEvent> eventCaptor = ArgumentCaptor.forClass(ReportStatusEvent.class);
-        verify(reportStatusProducer, timeout(5000).times(1))
-                .sendStatusUpdate(eq(userId), eventCaptor.capture());
-
-        ReportStatusEvent producedEvent = eventCaptor.getValue();
-        assertThat(producedEvent.getReportId()).isEqualTo(reportId);
-        assertThat(producedEvent.getStatus()).isEqualTo("FAILED");
-        assertThat(producedEvent.getS3Key()).isNull();
-        assertThat(producedEvent.getErrorMessage()).contains("Unsupported report format: EXCEL");
     }
 }

@@ -1,6 +1,7 @@
 package com.literandltx.reportservice.service.strategy;
 
 import com.literandltx.reportservice.event.ReportRequestedEvent;
+import com.literandltx.reportservice.event.ReportType;
 import com.lowagie.text.Document;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
@@ -43,7 +44,7 @@ public class PdfReportGeneratorStrategy implements ReportGeneratorStrategy {
     }
 
     @Override
-    public String getSupportedFormat() {
-        return "PDF";
+    public ReportType getReportType() {
+        return ReportType.PDF;
     }
 }

@@ -1,6 +1,7 @@
 package com.literandltx.reportservice.listener;
 
 import com.literandltx.reportservice.event.ReportRequestedEvent;
+import com.literandltx.reportservice.event.ReportStatus;
 import com.literandltx.reportservice.event.ReportStatusEvent;
 import com.literandltx.reportservice.producer.ReportStatusProducer;
 import com.literandltx.reportservice.service.ReportGeneratorService;
@@ -21,8 +22,9 @@ public class ReportRequestedEventListener {
     @KafkaListener(topics = "${app.kafka.topics.report}")
     public void onReportRequested(ReportRequestedEvent event) {
         log.info("Received execution job for report ID: {}", event.getReportId());
+        log.info("Received execution job for payload: {}", event);
 
-        String s3Key = String.format("reports/%d/%s.txt", event.getUserId(), event.getReportId());
+        String s3Key = String.format("reports/%d/%s.%s", event.getUserId(), event.getReportId(), event.getReportType().name().toLowerCase());
 
         try {
             byte[] txtReportBytes = reportGeneratorService.generateReport(event);
@@ -30,19 +32,19 @@ public class ReportRequestedEventListener {
 
             ReportStatusEvent successEvent = new ReportStatusEvent(
                     event.getReportId(),
-                    "COMPLETED",
+                    ReportStatus.COMPLETED,
                     s3Key,
                     ""
             );
 
             reportStatusProducer.sendStatusUpdate(event.getUserId(), successEvent);
-            log.info("Compiled TXT file with ID: {}", event.getReportId());
+            log.info("Compiled {} file with ID: {}", event.getReportId(), event.getReportType());
         } catch (Exception ex) {
             log.error("Failed handling report compilation job for ID: {}", event.getReportId(), ex);
 
             ReportStatusEvent failureEvent = new ReportStatusEvent(
                     event.getReportId(),
-                    "FAILED",
+                    ReportStatus.FAILED,
                     null,
                     ex.getMessage()
             );

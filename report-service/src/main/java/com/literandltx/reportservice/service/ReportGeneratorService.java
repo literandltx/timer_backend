@@ -1,6 +1,7 @@
 package com.literandltx.reportservice.service;
 
 import com.literandltx.reportservice.event.ReportRequestedEvent;
+import com.literandltx.reportservice.event.ReportType;
 import com.literandltx.reportservice.service.strategy.ReportGeneratorStrategy;
 import java.util.List;
 import java.util.Map;
@@ -11,18 +12,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReportGeneratorService {
 
-    private final Map<String, ReportGeneratorStrategy> strategies;
+    private final Map<ReportType, ReportGeneratorStrategy> strategies;
 
     public ReportGeneratorService(List<ReportGeneratorStrategy> strategyList) {
         this.strategies = strategyList.stream()
                 .collect(Collectors.toMap(
-                        strategy -> strategy.getSupportedFormat().toUpperCase(),
+                        ReportGeneratorStrategy::getReportType,
                         Function.identity()
                 ));
     }
 
     public byte[] generateReport(ReportRequestedEvent event) {
-        ReportGeneratorStrategy strategy = strategies.get(event.getReportType().toUpperCase());
+        ReportGeneratorStrategy strategy = strategies.get(event.getReportType());
 
         if (strategy == null) {
             throw new IllegalArgumentException("Unsupported report format: " + event.getReportType());

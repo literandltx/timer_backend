@@ -1,6 +1,7 @@
 package com.literandltx.reportservice.service.strategy;
 
 import com.literandltx.reportservice.event.ReportRequestedEvent;
+import com.literandltx.reportservice.event.ReportType;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,7 @@ public class TxtReportGeneratorStrategy implements ReportGeneratorStrategy {
     }
 
     @Override
-    public String getSupportedFormat() {
-        return "TXT";
+    public ReportType getReportType() {
+        return ReportType.TXT;
     }
 }

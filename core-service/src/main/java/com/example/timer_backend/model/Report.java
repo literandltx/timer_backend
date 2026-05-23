@@ -30,8 +30,9 @@ public class Report {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "report_type", nullable = false)
-    private String reportType;
+    private ReportType reportType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

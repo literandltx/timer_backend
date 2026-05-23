@@ -19,7 +19,7 @@ public class ReportStatusProducer {
     public void sendStatusUpdate(Long userId, ReportStatusEvent event) {
         String key = String.valueOf(userId);
         log.info("Publishing report status [{}] for report ID: {} to topic: {}",
-                event.getStatus(), event.getReportId(), coreTopic);
+                event.getReportStatus(), event.getReportId(), coreTopic);
 
         kafkaTemplate.send(coreTopic, key, event)
                 .whenComplete((result, ex) -> {
