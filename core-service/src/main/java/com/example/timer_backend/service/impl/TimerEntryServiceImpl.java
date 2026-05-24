@@ -25,6 +25,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -63,6 +66,7 @@ public class TimerEntryServiceImpl implements TimerEntryService {
     }
 
     @Override
+    @Cacheable(value = "timerEntries", key = "#id + '-' + #authUser.id")
     public TimerEntryResponseDto findById(Long id, User authUser) {
         log.info("Fetching timer entry with id: {}", id);
 
@@ -76,6 +80,7 @@ public class TimerEntryServiceImpl implements TimerEntryService {
 
     @Override
     @Transactional
+    @CachePut(value = "timerEntries", key = "#id + '-' + #authUser.id")
     public TimerEntryResponseDto updateById(Long id, TimerEntryRequestDto request, User authUser) {
         log.info("Updating timer entry id: {} for user id: {}", id, authUser.getId());
 
@@ -97,6 +102,7 @@ public class TimerEntryServiceImpl implements TimerEntryService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "timerEntries", key = "#id + '-' + #authUser.id")
     public void deleteById(Long id, User authUser) {
         log.info("Deleting timer entry id: {} for user id: {}", id, authUser.getId());
 

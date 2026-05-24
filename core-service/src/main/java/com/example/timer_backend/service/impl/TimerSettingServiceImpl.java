@@ -15,6 +15,9 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -48,6 +51,7 @@ public class TimerSettingServiceImpl implements TimerSettingService {
     }
 
     @Override
+    @Cacheable(value = "timerSettings", key = "#id + '-' + #authUser.id")
     public TimerSettingResponseDto findById(Long id, User authUser) {
         log.info("Fetching timer setting with id: {}", id);
 
@@ -62,6 +66,7 @@ public class TimerSettingServiceImpl implements TimerSettingService {
 
     @Override
     @Transactional
+    @CachePut(value = "timerSettings", key = "#id + '-' + #authUser.id")
     public TimerSettingResponseDto updateById(Long id, TimerSettingRequestDto request, User authUser) {
         log.info("Updating timer setting id: {} for user id: {}", id, authUser.getId());
 
@@ -82,6 +87,7 @@ public class TimerSettingServiceImpl implements TimerSettingService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "timerSettings", key = "#id + '-' + #authUser.id")
     public void deleteById(Long id, User authUser) {
         log.info("Deleting timer setting id: {} for user id: {}", id, authUser.getId());
 

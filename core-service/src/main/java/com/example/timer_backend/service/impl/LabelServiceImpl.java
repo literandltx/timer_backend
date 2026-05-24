@@ -13,6 +13,9 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,7 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
+    @Cacheable(value = "labels", key = "#id + '-' + #authUser.id")
     public LabelResponseDto findById(Long id, User authUser) {
         log.info("Fetching label with id: {}", id);
 
@@ -45,12 +49,13 @@ public class LabelServiceImpl implements LabelService {
 
         checkOwnership(label, authUser);
 
-        log.info("Label updated successfully with id: {}", id);
+        log.info("Label fetched successfully with id: {}", id);
         return labelMapper.toLabelResponse(label);
     }
 
     @Override
     @Transactional
+    @CachePut(value = "labels", key = "#id + '-' + #authUser.id")
     public LabelResponseDto updateById(Long id, LabelRequestDto request, User authUser) {
         log.info("Updating label with id: {} for user id: {}", id, authUser.getId());
 
@@ -69,6 +74,7 @@ public class LabelServiceImpl implements LabelService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "labels", key = "#id + '-' + #authUser.id")
     public void deleteById(Long id, User authUser) {
         log.info("Deleting label with id: {} for user id: {}", id, authUser.getId());
 
@@ -96,7 +102,7 @@ public class LabelServiceImpl implements LabelService {
         if (!label.getUser().getId().equals(authUser.getId())) {
             log.warn("Access denied: User {} tried to access label {} owned by user {}",
                     authUser.getId(), label.getId(), label.getUser().getId());
-            throw new AccessDeniedException("You do not have permission to delete this label");
+            throw new AccessDeniedException("You do not have permission to access this label");
         }
     }
 }
