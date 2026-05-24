@@ -24,6 +24,10 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
         spring.json.type.mapping: "com.literandltx.reportservice.event.ReportStatusEvent:com.example.timer_backend.event.ReportStatusEvent"
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 jwt:
   expiration: 3000000

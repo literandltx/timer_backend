@@ -13,6 +13,9 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,7 @@ public class TimerOptionServiceImpl implements TimerOptionService {
     }
 
     @Override
+    @Cacheable(value = "timerOptions", key = "#id + '-' + #authUser.id")
     public TimerOptionResponseDto findById(Long id, User authUser) {
         log.info("Fetching timer option with id: {}", id);
 
@@ -52,6 +56,7 @@ public class TimerOptionServiceImpl implements TimerOptionService {
 
     @Override
     @Transactional
+    @CachePut(value = "timerOptions", key = "#id + '-' + #authUser.id")
     public TimerOptionResponseDto updateById(Long id, TimerOptionRequestDto request, User authUser) {
         log.info("Updating timer option with id: {} for user id: {}", id, authUser.getId());
 
@@ -69,6 +74,7 @@ public class TimerOptionServiceImpl implements TimerOptionService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "timerOptions", key = "#id + '-' + #authUser.id")
     public void deleteById(Long id, User authUser) {
         log.info("Deleting timer option with id: {} for user id: {}", id, authUser.getId());
 
