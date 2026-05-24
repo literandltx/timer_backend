@@ -6,19 +6,27 @@ import com.example.timer_backend.dto.user.UserRegistrationRequestDto;
 import com.example.timer_backend.dto.user.UserRegistrationResponseDto;
 import com.example.timer_backend.dto.user.UserResponseDto;
 import com.example.timer_backend.dto.user.UserUpdateRequestDto;
+import com.example.timer_backend.dto.user.auth.ForgotPasswordRequestDto;
+import com.example.timer_backend.dto.user.auth.ResetPasswordRequestDto;
 import com.example.timer_backend.event.NotificationRequestedEvent;
 import com.example.timer_backend.event.NotificationType;
 import com.example.timer_backend.exception.custom.UserAlreadyExistsException;
 import com.example.timer_backend.mapper.UserMapper;
+import com.example.timer_backend.model.PasswordResetToken;
 import com.example.timer_backend.model.Role;
 import com.example.timer_backend.model.RoleName;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.producer.NotificationEventPublisher;
+import com.example.timer_backend.repository.PasswordResetTokenRepository;
 import com.example.timer_backend.repository.RoleRepository;
 import com.example.timer_backend.repository.UserRepository;
 import com.example.timer_backend.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +40,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final NotificationEventPublisher notificationEventPublisher;
@@ -56,6 +65,58 @@ public class UserServiceImpl implements UserService {
         notificationEventPublisher.publishNotificationRequest(event);
 
         return userMapper.toModel(saved);
+    }
+
+    @Override
+    @Transactional
+    public void processForgotPassword(ForgotPasswordRequestDto request) {
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+
+        if (userOptional.isEmpty()) {
+            log.warn("Password reset requested for non-existent email: {}", request.getEmail());
+            return;
+        }
+
+        User user = userOptional.get();
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .user(user)
+                .build();
+
+        resetToken = passwordResetTokenRepository.save(resetToken);
+
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("token", resetToken.getToken());
+
+        NotificationRequestedEvent event = new NotificationRequestedEvent();
+        event.setEmail(request.getEmail());
+        event.setNotificationType(NotificationType.PASSWORD_RESET);
+        event.setAttributes(attributes);
+
+        notificationEventPublisher.publishNotificationRequest(event);
+    }
+
+    @Override
+    @Transactional
+    public void processResetPassword(String token, ResetPasswordRequestDto request) {
+        PasswordResetToken tokenEntity = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid token."));
+
+        if (!tokenEntity.isActive()) {
+            throw new RuntimeException("Token has already been used or is inactive.");
+        }
+
+        if (tokenEntity.getExpiresAt().isBefore(LocalDateTime.now())) {
+            tokenEntity.setActive(false);
+            passwordResetTokenRepository.save(tokenEntity);
+            throw new RuntimeException("Token has expired.");
+        }
+
+        User user = tokenEntity.getUser();
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+
+        tokenEntity.setActive(false);
+        passwordResetTokenRepository.save(tokenEntity);
     }
 
     @Override

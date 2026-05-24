@@ -24,16 +24,17 @@ public class PasswordResetNotificationStrategy implements NotificationStrategy {
     @Override
     public void process(NotificationRequestedEvent event) {
         Map<String, String> attributes = event.getAttributes();
-        String resetToken = attributes.getOrDefault("resetToken", "");
+        String resetToken = attributes.getOrDefault("token", "");
 
         if (resetToken.isBlank()) {
             log.error("Cannot send password reset to {} - missing resetToken", event.getEmail());
             return;
         }
 
+        String frontendUrl = "http://localhost:3000/reset-password?token=" + resetToken;
         String html = String.format(
-                "<p>Click <a href='http://localhost:8080/api/v1/reset?token=%s'>here</a> to reset.</p>",
-                resetToken
+                "<p>Click <a href='%s'>here</a> to reset your password.</p>",
+                frontendUrl
         );
 
         try {

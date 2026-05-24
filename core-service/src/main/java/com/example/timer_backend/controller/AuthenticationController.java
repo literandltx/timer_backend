@@ -4,6 +4,8 @@ import com.example.timer_backend.dto.user.UserLoginRequestDto;
 import com.example.timer_backend.dto.user.UserLoginResponseDto;
 import com.example.timer_backend.dto.user.UserRegistrationRequestDto;
 import com.example.timer_backend.dto.user.UserRegistrationResponseDto;
+import com.example.timer_backend.dto.user.auth.ForgotPasswordRequestDto;
+import com.example.timer_backend.dto.user.auth.ResetPasswordRequestDto;
 import com.example.timer_backend.security.AuthenticationService;
 import com.example.timer_backend.service.UserService;
 import jakarta.validation.Valid;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -33,5 +36,20 @@ public class AuthenticationController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @PostMapping("/forgot")
+    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequestDto request) {
+        userService.processForgotPassword(request);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/reset")
+    public ResponseEntity<Void> resetPassword(
+            @RequestParam("token") String token,
+            @RequestBody @Valid ResetPasswordRequestDto request
+    ) {
+        userService.processResetPassword(token, request);
+        return ResponseEntity.ok().build();
     }
 }
