@@ -45,10 +45,10 @@ class PasswordResetNotificationStrategyTest {
         // Arrange
         String email = "user@example.com";
         String token = "abc-123";
-        NotificationRequestedEvent event = createEvent(email, Map.of("resetToken", token));
+        NotificationRequestedEvent event = createEvent(email, Map.of("token", token));
 
         String expectedHtml = String.format(
-                "<p>Click <a href='http://localhost:8080/api/v1/reset?token=%s'>here</a> to reset.</p>",
+                "<p>Click <a href='http://localhost:3000/reset-password?token=%s'>here</a> to reset your password.</p>",
                 token
         );
 
@@ -77,7 +77,7 @@ class PasswordResetNotificationStrategyTest {
     void shouldHandleMailSenderExceptions() throws Exception {
         // Arrange
         String email = "user@example.com";
-        NotificationRequestedEvent event = createEvent(email, Map.of("resetToken", "token"));
+        NotificationRequestedEvent event = createEvent(email, Map.of("token", "token"));
 
         doThrow(new RuntimeException("Mail server down"))
                 .when(mailSender).sendHtml(eq(email), eq("Password Reset Request"), org.mockito.ArgumentMatchers.anyString());

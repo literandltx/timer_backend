@@ -47,10 +47,11 @@ class NotificationStrategiesTest {
         MailSender mockMailSender = mock(MailSender.class);
         String resetToken = "abc-123";
         NotificationRequestedEvent resetEvent = new NotificationRequestedEvent(
-                999L, "user@example.com", NotificationType.PASSWORD_RESET, Map.of("resetToken", resetToken)
+                999L, "user@example.com", NotificationType.PASSWORD_RESET, Map.of("token", resetToken)
         );
         String resetHtml = String.format(
-                "<p>Click <a href='http://localhost:8080/api/v1/reset?token=%s'>here</a> to reset.</p>", resetToken
+                "<p>Click <a href='http://localhost:3000/reset-password?token=%s'>here</a> to reset your password.</p>",
+                resetToken
         );
         NotificationRequestedEvent registrationEvent = new NotificationRequestedEvent(
                 999L, "newuser@example.com", NotificationType.REGISTRATION, Map.of()
