@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
         NotificationRequestedEvent event = new NotificationRequestedEvent();
         event.setUserId(saved.getId());
-        event.setEmail(request.getEmail());
+        event.setEmail(saved.getEmail());
         event.setNotificationType("REGISTER");
         notificationEventPublisher.publishNotificationRequest(event);
 
@@ -62,6 +62,12 @@ public class UserServiceImpl implements UserService {
         log.info("Fetching current user details for user id: {}", authUser.getId());
 
         User user = getUserOrThrow(authUser.getId());
+
+        NotificationRequestedEvent event = new NotificationRequestedEvent();
+        event.setUserId(user.getId());
+        event.setEmail(user.getEmail());
+        event.setNotificationType("REGISTER");
+        notificationEventPublisher.publishNotificationRequest(event);
 
         return userMapper.toResponseDto(user);
     }
