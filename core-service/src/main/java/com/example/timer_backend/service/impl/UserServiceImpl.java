@@ -7,6 +7,7 @@ import com.example.timer_backend.dto.user.UserRegistrationResponseDto;
 import com.example.timer_backend.dto.user.UserResponseDto;
 import com.example.timer_backend.dto.user.UserUpdateRequestDto;
 import com.example.timer_backend.event.NotificationRequestedEvent;
+import com.example.timer_backend.event.NotificationType;
 import com.example.timer_backend.exception.custom.UserAlreadyExistsException;
 import com.example.timer_backend.mapper.UserMapper;
 import com.example.timer_backend.model.Role;
@@ -51,7 +52,7 @@ public class UserServiceImpl implements UserService {
         NotificationRequestedEvent event = new NotificationRequestedEvent();
         event.setUserId(saved.getId());
         event.setEmail(saved.getEmail());
-        event.setNotificationType("REGISTER");
+        event.setNotificationType(NotificationType.REGISTRATION);
         notificationEventPublisher.publishNotificationRequest(event);
 
         return userMapper.toModel(saved);
@@ -62,12 +63,6 @@ public class UserServiceImpl implements UserService {
         log.info("Fetching current user details for user id: {}", authUser.getId());
 
         User user = getUserOrThrow(authUser.getId());
-
-        NotificationRequestedEvent event = new NotificationRequestedEvent();
-        event.setUserId(user.getId());
-        event.setEmail(user.getEmail());
-        event.setNotificationType("REGISTER");
-        notificationEventPublisher.publishNotificationRequest(event);
 
         return userMapper.toResponseDto(user);
     }
