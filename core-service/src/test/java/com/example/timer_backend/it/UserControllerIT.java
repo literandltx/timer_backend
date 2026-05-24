@@ -14,6 +14,8 @@ import com.example.timer_backend.repository.LabelRepository;
 import com.example.timer_backend.repository.PasswordResetTokenRepository;
 import com.example.timer_backend.repository.UserRepository;
 import io.restassured.http.ContentType;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,9 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 class UserControllerIT extends BaseIntegrationTest {
 
