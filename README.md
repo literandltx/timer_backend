@@ -1,6 +1,18 @@
 # Timer Backend
 
-Timer Backend is a robust Spring Boot-based REST API designed for a time-tracking application. It allows users to track their activities, manage labels for categorization, and customize their timer settings.
+Timer Backend is a event-driven microservices architecture designed for a time-tracking application.
+It allows users to track their activities, manage labels for categorization, and customize their timer settings.
+
+## System Architecture
+
+![System Architecture](assets/architecture.png)
+
+The application consists of three following services:
+
+* **Core Service**: The primary service that manages core business logic, persists user and timer 
+data in **PostgreSQL**, leverages **Redis** for caching and publishes event messages to **Kafka**.
+* **Notification Service**: A consumer that listens to Kafka events to send notifications to users.
+* **Report Service**: Listens to Kafka events to generate report files and uploading them to **S3/MinIO**.
 
 ## 🚀 Features
 
@@ -28,6 +40,7 @@ Timer Backend is a robust Spring Boot-based REST API designed for a time-trackin
 - **Containerization**: Docker
 
 ## 🐳Run with Docker Compose
+To spin up the entire microservices ecosystem, run:
 ```bash
 docker-compose up --build
 ```
