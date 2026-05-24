@@ -10,6 +10,7 @@ import com.example.timer_backend.dto.user.auth.ForgotPasswordRequestDto;
 import com.example.timer_backend.dto.user.auth.ResetPasswordRequestDto;
 import com.example.timer_backend.event.NotificationRequestedEvent;
 import com.example.timer_backend.event.NotificationType;
+import com.example.timer_backend.exception.custom.TokenExpiredException;
 import com.example.timer_backend.exception.custom.UserAlreadyExistsException;
 import com.example.timer_backend.mapper.UserMapper;
 import com.example.timer_backend.model.PasswordResetToken;
@@ -96,7 +97,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
+    @Transactional(dontRollbackOn = TokenExpiredException.class)
     public void processResetPassword(String token, ResetPasswordRequestDto request) {
         PasswordResetToken tokenEntity = passwordResetTokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid token."));
@@ -108,7 +109,7 @@ public class UserServiceImpl implements UserService {
         if (tokenEntity.getExpiresAt().isBefore(LocalDateTime.now())) {
             tokenEntity.setActive(false);
             passwordResetTokenRepository.save(tokenEntity);
-            throw new RuntimeException("Token has expired.");
+            throw new TokenExpiredException("Token has expired.");
         }
 
         User user = tokenEntity.getUser();
