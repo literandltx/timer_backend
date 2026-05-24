@@ -15,6 +15,14 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: example.com
+    password: pass pass pass pass
+    properties:
+      "mail.smtp.auth": true
+      "mail.smtp.starttls.enable": true
 
 server:
   port: 8082

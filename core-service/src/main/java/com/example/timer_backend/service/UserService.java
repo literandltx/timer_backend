@@ -6,12 +6,18 @@ import com.example.timer_backend.dto.user.UserRegistrationRequestDto;
 import com.example.timer_backend.dto.user.UserRegistrationResponseDto;
 import com.example.timer_backend.dto.user.UserResponseDto;
 import com.example.timer_backend.dto.user.UserUpdateRequestDto;
+import com.example.timer_backend.dto.user.auth.ForgotPasswordRequestDto;
+import com.example.timer_backend.dto.user.auth.ResetPasswordRequestDto;
 import com.example.timer_backend.model.User;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface UserService {
     UserRegistrationResponseDto register(UserRegistrationRequestDto request);
+
+    void processForgotPassword(ForgotPasswordRequestDto request);
+
+    void processResetPassword(String token, ResetPasswordRequestDto request);
 
     UserResponseDto getCurrentUser(User user);
 

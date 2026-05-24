@@ -6,10 +6,16 @@ import static org.hamcrest.Matchers.equalTo;
 import com.example.timer_backend.dto.user.ChangeEmailRequestDto;
 import com.example.timer_backend.dto.user.ChangePasswordRequestDto;
 import com.example.timer_backend.dto.user.UserUpdateRequestDto;
+import com.example.timer_backend.dto.user.auth.ForgotPasswordRequestDto;
+import com.example.timer_backend.dto.user.auth.ResetPasswordRequestDto;
+import com.example.timer_backend.model.PasswordResetToken;
 import com.example.timer_backend.model.User;
 import com.example.timer_backend.repository.LabelRepository;
+import com.example.timer_backend.repository.PasswordResetTokenRepository;
 import com.example.timer_backend.repository.UserRepository;
 import io.restassured.http.ContentType;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +31,9 @@ class UserControllerIT extends BaseIntegrationTest {
 
     @Autowired
     private LabelRepository labelRepository;
+
+    @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -45,6 +54,7 @@ class UserControllerIT extends BaseIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        passwordResetTokenRepository.deleteAll();
         labelRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -207,5 +217,188 @@ class UserControllerIT extends BaseIntegrationTest {
 
         boolean exists = userRepository.existsById(currentUser.getId());
         Assertions.assertFalse(exists);
+    }
+
+    @Test
+    void shouldReturnAccepted_AndCreateToken_WhenForgotPasswordRequestedForExistingUser() {
+        ForgotPasswordRequestDto request = new ForgotPasswordRequestDto();
+        request.setEmail(userEmail);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/api/v1/auth/forgot")
+                .then()
+                .statusCode(HttpStatus.ACCEPTED.value());
+
+        var tokens = passwordResetTokenRepository.findAll();
+        Assertions.assertFalse(tokens.isEmpty(), "A password reset token should have been created");
+        Assertions.assertEquals(currentUser.getId(), tokens.get(0).getUser().getId());
+        Assertions.assertNotNull(tokens.get(0).getToken());
+    }
+
+    @Test
+    void shouldReturnAccepted_ButNotCreateToken_WhenForgotPasswordRequestedForNonExistentUser() {
+        ForgotPasswordRequestDto request = new ForgotPasswordRequestDto();
+        request.setEmail("doesnotexist@example.com");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/api/v1/auth/forgot")
+                .then()
+                .statusCode(HttpStatus.ACCEPTED.value());
+
+        var tokens = passwordResetTokenRepository.findAll();
+        Assertions.assertTrue(tokens.isEmpty(), "No token should be created for a non-existent user");
+    }
+
+    @Test
+    void shouldReturnBadRequest_WhenForgotPasswordRequestedWithInvalidEmail() {
+        ForgotPasswordRequestDto request = new ForgotPasswordRequestDto();
+        request.setEmail("invalid-email-format");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/api/v1/auth/forgot")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void shouldReturnBadRequest_WhenForgotPasswordRequestedWithMissingEmail() {
+        ForgotPasswordRequestDto request = new ForgotPasswordRequestDto();
+        request.setEmail(null);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/api/v1/auth/forgot")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void shouldResetPassword_WhenTokenAndRequestAreValid() {
+        PasswordResetToken resetToken = createActiveResetToken(currentUser);
+        ResetPasswordRequestDto request = new ResetPasswordRequestDto();
+        request.setPassword("newSuperSecret123");
+        request.setRepeatPassword("newSuperSecret123");
+
+        given()
+                .contentType(ContentType.JSON)
+                .queryParam("token", resetToken.getToken())
+                .body(request)
+                .when()
+                .post("/api/v1/auth/reset")
+                .then()
+                .statusCode(HttpStatus.OK.value());
+
+        User updatedUser = userRepository.findById(currentUser.getId()).orElseThrow();
+        Assertions.assertTrue(passwordEncoder.matches("newSuperSecret123", updatedUser.getPassword()),
+                "Password should be encoded and match the new password");
+
+        PasswordResetToken updatedToken = passwordResetTokenRepository.findById(resetToken.getId()).orElseThrow();
+        Assertions.assertFalse(updatedToken.isActive(), "Token should be deactivated after successful use");
+    }
+
+    @Test
+    void shouldReturnError_WhenResetPasswordWithExpiredToken() {
+        PasswordResetToken expiredToken = PasswordResetToken.builder()
+                .user(currentUser)
+                .token(UUID.randomUUID().toString())
+                .active(true)
+                .expiresAt(LocalDateTime.now().minusMinutes(5))
+                .build();
+        passwordResetTokenRepository.save(expiredToken);
+
+        ResetPasswordRequestDto request = new ResetPasswordRequestDto();
+        request.setPassword("newSuperSecret123");
+        request.setRepeatPassword("newSuperSecret123");
+
+        given()
+                .contentType(ContentType.JSON)
+                .queryParam("token", expiredToken.getToken())
+                .body(request)
+                .when()
+                .post("/api/v1/auth/reset")
+                .then()
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        PasswordResetToken updatedToken = passwordResetTokenRepository.findById(expiredToken.getId()).orElseThrow();
+        Assertions.assertFalse(updatedToken.isActive(), "Expired token should be set to inactive");
+    }
+
+    @Test
+    void shouldReturnError_WhenResetPasswordWithInactiveToken() {
+        PasswordResetToken inactiveToken = PasswordResetToken.builder()
+                .user(currentUser)
+                .token(UUID.randomUUID().toString())
+                .active(false)
+                .expiresAt(LocalDateTime.now().minusHours(1))
+                .build();
+        passwordResetTokenRepository.save(inactiveToken);
+
+        ResetPasswordRequestDto request = new ResetPasswordRequestDto();
+        request.setPassword("newSuperSecret123");
+        request.setRepeatPassword("newSuperSecret123");
+
+        given()
+                .contentType(ContentType.JSON)
+                .queryParam("token", inactiveToken.getToken())
+                .body(request)
+                .when()
+                .post("/api/v1/auth/reset")
+                .then()
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+    }
+
+    @Test
+    void shouldReturnBadRequest_WhenResetPasswordWithMismatchedPasswords() {
+        PasswordResetToken resetToken = createActiveResetToken(currentUser);
+        ResetPasswordRequestDto request = new ResetPasswordRequestDto();
+        request.setPassword("newSuperSecret123");
+        request.setRepeatPassword("differentPassword456");
+
+        given()
+                .contentType(ContentType.JSON)
+                .queryParam("token", resetToken.getToken())
+                .body(request)
+                .when()
+                .post("/api/v1/auth/reset")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    void shouldReturnBadRequest_WhenResetPasswordWithShortPassword() {
+        PasswordResetToken resetToken = createActiveResetToken(currentUser);
+        ResetPasswordRequestDto request = new ResetPasswordRequestDto();
+        request.setPassword("short");
+        request.setRepeatPassword("short");
+
+        given()
+                .contentType(ContentType.JSON)
+                .queryParam("token", resetToken.getToken())
+                .body(request)
+                .when()
+                .post("/api/v1/auth/reset")
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    private PasswordResetToken createActiveResetToken(User user) {
+        PasswordResetToken token = PasswordResetToken.builder()
+                .user(user)
+                .token(UUID.randomUUID().toString())
+                .active(true)
+                .expiresAt(LocalDateTime.now().plusHours(1))
+                .build();
+        return passwordResetTokenRepository.save(token);
     }
 }
