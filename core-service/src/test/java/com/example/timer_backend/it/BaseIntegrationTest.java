@@ -9,6 +9,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -19,6 +20,8 @@ public abstract class BaseIntegrationTest {
 
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine");
     private static final ConfluentKafkaContainer kafka = new ConfluentKafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:8.1.3"));
+    private static final GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:8.6-alpine"))
+            .withExposedPorts(6379);
 
     @LocalServerPort
     protected Integer port;
@@ -27,6 +30,7 @@ public abstract class BaseIntegrationTest {
     static void beforeAll() {
         postgres.start();
         kafka.start();
+        redis.start();
     }
 
     @DynamicPropertySource
@@ -35,6 +39,8 @@ public abstract class BaseIntegrationTest {
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
         registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+        registry.add("spring.data.redis.host", redis::getHost);
+        registry.add("spring.data.redis.port", redis::getFirstMappedPort);
     }
 
     @BeforeEach
