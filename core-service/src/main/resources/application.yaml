@@ -29,6 +29,15 @@ spring:
       host: localhost
       port: 6379
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
 jwt:
   expiration: 3000000
   secret: secretsecretsecretsecretsecretsecret
