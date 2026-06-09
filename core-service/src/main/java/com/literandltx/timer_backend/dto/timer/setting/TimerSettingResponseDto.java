@@ -1,0 +1,18 @@
+package com.literandltx.timer_backend.dto.timer.setting;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class TimerSettingResponseDto {
+    private Long id;
+    private Long userId;
+    private Long timerOptionId;
+    private Long value;
+    private Long lastUpdated;
+}

@@ -16,7 +16,7 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
         spring.json.use.type.headers: true
-        spring.json.type.mapping: "com.example.timer_backend.event.ReportRequestedEvent:com.literandltx.reportservice.event.ReportRequestedEvent"
+        spring.json.type.mapping: "com.literandltx.timer_backend.event.ReportRequestedEvent:com.literandltx.reportservice.event.ReportRequestedEvent"
 
 server:
   port: 8081
